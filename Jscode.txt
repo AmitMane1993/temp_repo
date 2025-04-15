@@ -1,0 +1,31 @@
+function formatStatsValues() {
+  var sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
+  var range = sheet.getRange("A1"); // Change if your data is not in A1
+  var value = range.getValue();
+
+  // Split by line
+  var lines = value.toString().split("\n");
+  var formatted = lines.map(line => {
+    let match = line.match(/^(\d+)\.\s+(.*)/);
+    if (match) {
+      let num = parseInt(match[1]);
+      let content = match[2];
+
+      // Format special cases
+      if (num === 1) return "None";
+      if (num === 2) return "0.E-9";
+
+      // Try formatting numbers (default to 2 decimal places)
+      let numVal = parseFloat(content);
+      if (!isNaN(numVal)) {
+        return numVal.toFixed(2);
+      } else {
+        return content;
+      }
+    }
+    return line;
+  });
+
+  // Join and set back to the cell
+  range.setValue(formatted.join("\n"));
+}
