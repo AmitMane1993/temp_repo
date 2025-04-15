@@ -1,0 +1,78 @@
+Sure! Here's how you can statistically and visually check the relationship between two continuous data columns using Python.
+
+1. Import Required Libraries
+
+import pandas as pd
+import matplotlib.pyplot as plt
+import seaborn as sns
+from scipy.stats import pearsonr, spearmanr
+
+
+---
+
+2. Example Data (or Load Your Own)
+
+# Replace this with your actual data
+data = pd.DataFrame({
+    'column1': [10, 20, 30, 40, 50, 60],
+    'column2': [8, 18, 28, 38, 50, 62]
+})
+
+
+---
+
+3. Statistical Correlation Tests
+
+# Pearson correlation (linear relationship)
+pearson_corr, pearson_p = pearsonr(data['column1'], data['column2'])
+
+# Spearman correlation (monotonic relationship)
+spearman_corr, spearman_p = spearmanr(data['column1'], data['column2'])
+
+print(f"Pearson Correlation: {pearson_corr:.2f} (p-value: {pearson_p:.4f})")
+print(f"Spearman Correlation: {spearman_corr:.2f} (p-value: {spearman_p:.4f})")
+
+
+---
+
+4. Visualization
+
+# Scatterplot with regression line
+sns.lmplot(x='column1', y='column2', data=data, ci=None)
+plt.title("Scatter Plot with Regression Line")
+plt.show()
+
+# Heatmap for correlation matrix
+correlation_matrix = data.corr()
+sns.heatmap(correlation_matrix, annot=True, cmap='coolwarm')
+plt.title("Correlation Heatmap")
+plt.show()
+
+
+---
+
+5. Interpretation of Results
+
+Pearson Correlation: Measures linear relationship.
+
+Value near +1 means strong positive linear relation.
+
+Value near -1 means strong negative linear relation.
+
+p-value < 0.05 suggests the relationship is statistically significant.
+
+
+Spearman Correlation: Captures monotonic relationships (not necessarily linear).
+
+Useful if data isn’t normally distributed or has outliers.
+
+
+Scatter Plot: Visual indication of relationship (linear, curved, no relation).
+
+Heatmap: Quick overview of all pairwise correlations.
+
+
+
+---
+
+If you paste your actual data or column names, I can tailor the code further. Want to do that?
