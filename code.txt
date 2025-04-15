@@ -1,0 +1,112 @@
+To check the relationship or correlation between a categorical column (1–36) and a continuous column, you can use both statistical tests and visualization techniques.
+
+
+---
+
+1. Statistical Methods
+
+A. ANOVA (Analysis of Variance)
+
+Tests if the means of the continuous variable differ significantly across the 36 categories.
+
+import pandas as pd
+import scipy.stats as stats
+
+# Assuming df is your DataFrame, 'category' is your categorical column, and 'value' is your continuous column
+anova_result = stats.f_oneway(*(df[df['category'] == cat]['value'] for cat in df['category'].unique()))
+print("F-statistic:", anova_result.statistic)
+print("p-value:", anova_result.pvalue)
+
+Interpretation:
+
+A low p-value (< 0.05) suggests that at least one category has a different mean, implying a potential correlation.
+
+
+
+---
+
+B. Eta-Squared (Effect Size)
+
+Measures how much of the variance in the continuous variable is explained by the categorical variable.
+
+from statsmodels.formula.api import ols
+import statsmodels.api as sm
+
+model = ols('value ~ C(category)', data=df).fit()
+anova_table = sm.stats.anova_lm(model, typ=2)
+eta_squared = anova_table['sum_sq']['C(category)'] / anova_table['sum_sq'].sum()
+print("Eta Squared:", eta_squared)
+
+Interpretation:
+
+0.01: small effect, 0.06: medium, 0.14: large effect.
+
+
+
+---
+
+2. Visualization Methods
+
+A. Boxplot
+
+Displays distribution of the continuous variable across categories.
+
+import seaborn as sns
+import matplotlib.pyplot as plt
+
+plt.figure(figsize=(14,6))
+sns.boxplot(x='category', y='value', data=df)
+plt.xticks(rotation=90)
+plt.title("Boxplot of Value by Category")
+plt.show()
+
+Interpretation:
+
+Look for visible differences in medians and spread across categories.
+
+
+
+---
+
+B. Violin Plot
+
+Combines KDE and boxplot.
+
+plt.figure(figsize=(14,6))
+sns.violinplot(x='category', y='value', data=df, inner="quartile")
+plt.xticks(rotation=90)
+plt.title("Violin Plot of Value by Category")
+plt.show()
+
+
+---
+
+C. Strip Plot or Swarm Plot
+
+Visualizes all points.
+
+plt.figure(figsize=(14,6))
+sns.stripplot(x='category', y='value', data=df, jitter=True, alpha=0.5)
+plt.xticks(rotation=90)
+plt.title("Strip Plot of Value by Category")
+plt.show()
+
+
+---
+
+Bonus: Encoding and Correlation (not recommended for ordered categoricals without ordinal meaning)
+
+You can encode categories as integers (1–36) and compute Pearson or Spearman correlation, but only if the numeric codes have true ordinal meaning, which seems unlikely in your case.
+
+
+---
+
+Recommendation
+
+Use ANOVA + Eta-Squared to test for statistical correlation.
+
+Use boxplots or violin plots for visual exploration.
+
+
+Let me know if you'd like help interpreting a specific output or adapting the code to your data!
+
