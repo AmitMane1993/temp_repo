@@ -16,22 +16,23 @@ data = pd.DataFrame({
     'category': ['A']*250 + ['B']*250 + ['C']*250 + ['D']*250
 })
 
-# Create overall figure
+# Set up the figure and the main gridspec
 fig = plt.figure(figsize=(18, 7))
 gs = gridspec.GridSpec(1, 2, width_ratios=[1, 2])
 
-# Plot overall distribution
+# Overall distribution on the left
 ax0 = fig.add_subplot(gs[0])
 sns.histplot(data['value'], kde=True, ax=ax0)
-ax0.set_title('Overall Distribution', fontsize=14)
+ax0.set_title('Overall Distribution')
 
-# Create a new axis for FacetGrid
-ax1 = fig.add_subplot(gs[1])
+# Right side: divide into 4 subplots
+gs_right = gridspec.GridSpecFromSubplotSpec(2, 2, subplot_spec=gs[1])
 
-# Seaborn FacetGrid
-g = sns.FacetGrid(data, col="category", col_wrap=2, sharex=False, sharey=False, height=3.5)
-g.map(sns.histplot, "value", kde=True)
+categories = data['category'].unique()
+for i, cat in enumerate(categories):
+    ax = fig.add_subplot(gs_right[i])
+    sns.histplot(data[data['category'] == cat]['value'], kde=True, ax=ax)
+    ax.set_title(f'Category {cat}')
 
-# Adjust layout
 plt.tight_layout()
 plt.show()
