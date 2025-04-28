@@ -33,7 +33,7 @@ ax0 = fig.add_subplot(gs[0])
 sns.histplot(data['value'], kde=True, ax=ax0)
 ax0.set_title('Overall Distribution')
 
-# Add text with stats
+# Add stats text ONLY to overall plot
 stats_text = get_stats_text(data['value'])
 ax0.text(0.05, 0.95, stats_text, transform=ax0.transAxes,
          verticalalignment='top', bbox=dict(boxstyle="round", facecolor="white", alpha=0.7))
@@ -46,30 +46,17 @@ first_ax = fig.add_subplot(gs_right[0])
 sns.histplot(data[data['category'] == 'A']['value'], kde=True, ax=first_ax)
 first_ax.set_title('Category A')
 
-# Add stats text
-cat_values = data[data['category'] == 'A']['value']
-stats_text = get_stats_text(cat_values)
-first_ax.text(0.05, 0.95, stats_text, transform=first_ax.transAxes,
-              verticalalignment='top', bbox=dict(boxstyle="round", facecolor="white", alpha=0.7))
-
-# Create other axes, sharing x and y with first_ax
 categories = data['category'].unique()
 axes = [first_ax]
 
+# Create other axes, sharing x and y with first_ax
 for i, cat in enumerate(categories[1:], 1):
     ax = fig.add_subplot(gs_right[i], sharex=first_ax, sharey=first_ax)
     sns.histplot(data[data['category'] == cat]['value'], kde=True, ax=ax)
     ax.set_title(f'Category {cat}')
-    
-    # Add stats text
-    cat_values = data[data['category'] == cat]['value']
-    stats_text = get_stats_text(cat_values)
-    ax.text(0.05, 0.95, stats_text, transform=ax.transAxes,
-            verticalalignment='top', bbox=dict(boxstyle="round", facecolor="white", alpha=0.7))
-    
     axes.append(ax)
 
-# Clean x/y labels
+# Clean x/y labels for neatness
 for ax in axes:
     if not ax.is_last_row():
         ax.set_xlabel('')
