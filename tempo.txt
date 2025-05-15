@@ -1,0 +1,104 @@
+WITH master_table as 
+
+(
+SELECT * 
+FROM 
+(
+SELECT
+    *,
+    DATE_TRUNC(call_dt, WEEK) AS call_dt_week
+    FROM (
+    SELECT
+        call_dt,
+        emp_eid,
+        ivrcallid,
+        contact_id,
+        binary_flag,
+        kpi,
+        kpi_value
+FROM
+( SELECT call_dt, emp_eid, ivrcallid, contact_id, 'non_binary' as binary_flag, 'avrg_handle_tm' as kpi, avrg_handle_tm as kpi_value         FROM vz-it-np-fjpv-dev-mlopdo-0.ds_work_tbls.mkc_cs_calls_detailed_act         WHERE avrg_handle_tm >= 400 AND avrg_handle_tm <= 100000) UNION ALL ( SELECT call_dt, emp_eid, ivrcallid, contact_id, 'non_binary' as binary_flag, 'talk_time' as kpi, talk_time as kpi_value         FROM vz-it-np-fjpv-dev-mlopdo-0.ds_work_tbls.mkc_cs_calls_detailed_act         WHERE avrg_handle_tm >= 400 AND avrg_handle_tm <= 100000) UNION ALL ( SELECT call_dt, emp_eid, ivrcallid, contact_id, 'non_binary' as binary_flag, 'customer_placed_on_hold' as kpi, customer_placed_on_hold as kpi_value         FROM vz-it-np-fjpv-dev-mlopdo-0.ds_work_tbls.mkc_cs_calls_detailed_act         WHERE avrg_handle_tm >= 400 AND avrg_handle_tm <= 100000) UNION ALL ( SELECT call_dt, emp_eid, ivrcallid, contact_id, 'binary' as binary_flag, 'trg_used' as kpi, trg_used as kpi_value         FROM vz-it-np-fjpv-dev-mlopdo-0.ds_work_tbls.mkc_cs_calls_detailed_act         WHERE avrg_handle_tm >= 400 AND avrg_handle_tm <= 100000) UNION ALL ( SELECT call_dt, emp_eid, ivrcallid, contact_id, 'binary' as binary_flag, 'myverizon_used_72_hrs_aftcall' as kpi, myverizon_used_72_hrs_aftcall as kpi_value         FROM vz-it-np-fjpv-dev-mlopdo-0.ds_work_tbls.mkc_cs_calls_detailed_act         WHERE avrg_handle_tm >= 400 AND avrg_handle_tm <= 100000) UNION ALL ( SELECT call_dt, emp_eid, ivrcallid, contact_id, 'non_binary' as binary_flag, 'pplan_step_up' as kpi, pplan_step_up as kpi_value         FROM vz-it-np-fjpv-dev-mlopdo-0.ds_work_tbls.mkc_cs_calls_detailed_act         WHERE avrg_handle_tm >= 400 AND avrg_handle_tm <= 100000) UNION ALL ( SELECT call_dt, emp_eid, ivrcallid, contact_id, 'non_binary' as binary_flag, 'pplan_total_value_fastbacks' as kpi, pplan_total_value_fastbacks as kpi_value         FROM vz-it-np-fjpv-dev-mlopdo-0.ds_work_tbls.mkc_cs_calls_detailed_act         WHERE avrg_handle_tm >= 400 AND avrg_handle_tm <= 100000) UNION ALL ( SELECT call_dt, emp_eid, ivrcallid, contact_id, 'non_binary' as binary_flag, 'feature_total_value_fastbacks' as kpi, feature_total_value_fastbacks as kpi_value         FROM vz-it-np-fjpv-dev-mlopdo-0.ds_work_tbls.mkc_cs_calls_detailed_act         WHERE avrg_handle_tm >= 400 AND avrg_handle_tm <= 100000) UNION ALL ( SELECT call_dt, emp_eid, ivrcallid, contact_id, 'non_binary' as binary_flag, 'pplan_total_value_for_aal' as kpi, pplan_total_value_for_aal as kpi_value         FROM vz-it-np-fjpv-dev-mlopdo-0.ds_work_tbls.mkc_cs_calls_detailed_act         WHERE avrg_handle_tm >= 400 AND avrg_handle_tm <= 100000) UNION ALL ( SELECT call_dt, emp_eid, ivrcallid, contact_id, 'non_binary' as binary_flag, 'feature_total_value_for_aal' as kpi, feature_total_value_for_aal as kpi_value         FROM vz-it-np-fjpv-dev-mlopdo-0.ds_work_tbls.mkc_cs_calls_detailed_act         WHERE avrg_handle_tm >= 400 AND avrg_handle_tm <= 100000) UNION ALL ( SELECT call_dt, emp_eid, ivrcallid, contact_id, 'non_binary' as binary_flag, 'feature_total_value' as kpi, feature_total_value as kpi_value         FROM vz-it-np-fjpv-dev-mlopdo-0.ds_work_tbls.mkc_cs_calls_detailed_act         WHERE avrg_handle_tm >= 400 AND avrg_handle_tm <= 100000) UNION ALL ( SELECT call_dt, emp_eid, ivrcallid, contact_id, 'non_binary' as binary_flag, 'three_day_resolve' as kpi, three_day_resolve as kpi_value         FROM vz-it-np-fjpv-dev-mlopdo-0.ds_work_tbls.mkc_cs_calls_detailed_act         WHERE avrg_handle_tm >= 400 AND avrg_handle_tm <= 100000) UNION ALL ( SELECT call_dt, emp_eid, ivrcallid, contact_id, 'binary' as binary_flag, 'compass_utilization' as kpi, compass_utilization as kpi_value         FROM vz-it-np-fjpv-dev-mlopdo-0.ds_work_tbls.mkc_cs_calls_detailed_act         WHERE avrg_handle_tm >= 400 AND avrg_handle_tm <= 100000) UNION ALL ( SELECT call_dt, emp_eid, ivrcallid, contact_id, 'binary' as binary_flag, 'handoffs_to_escalated_perc' as kpi, handoffs_to_escalated_perc as kpi_value         FROM vz-it-np-fjpv-dev-mlopdo-0.ds_work_tbls.mkc_cs_calls_detailed_act         WHERE avrg_handle_tm >= 400 AND avrg_handle_tm <= 100000) UNION ALL ( SELECT call_dt, emp_eid, ivrcallid, contact_id, 'non_binary' as binary_flag, 'agent_dpc_percent_100contact' as kpi, agent_dpc_percent_100contact as kpi_value         FROM vz-it-np-fjpv-dev-mlopdo-0.ds_work_tbls.mkc_cs_calls_detailed_act         WHERE avrg_handle_tm >= 400 AND avrg_handle_tm <= 100000) UNION ALL ( SELECT call_dt, emp_eid, ivrcallid, contact_id, 'non_binary' as binary_flag, 'credit_frequency_by_contact' as kpi, credit_frequency_by_contact as kpi_value         FROM vz-it-np-fjpv-dev-mlopdo-0.ds_work_tbls.mkc_cs_calls_detailed_act         WHERE avrg_handle_tm >= 400 AND avrg_handle_tm <= 100000)
+    )
+
+    WHERE kpi_value IS NOT NULL AND call_dt IS NOT NULL AND emp_eid IS NOT NULL AND ivrcallid IS NOT NULL AND contact_id IS NOT NULL AND call_dt>="2025-04-06" AND call_dt <="2025-04-12" 
+)),
+
+emp_pa_grp_tbl as 
+(
+    SELECT DISTINCT EMP_EID,PA_GRP_NM
+    FROM
+        `vz-it-np-fjpv-dev-mlopdo-0.ds_work_tbls.fact_emp_cs_metrics_sum_wkly`
+    WHERE PA_GRP_NM IN ('2024 CS CX','2024 CS CX Bilingual','2024 CS Loyalty Eff 7/1','2024 CS Loyalty Bilingual Eff 7/1','2024 CS Loyalty Transition','2024 CS New to Job','2025 CS CX','2025 CS CX Bilingual','2025 CS Loyalty','2025 CS Loyalty Bilingual','2025 CS Loyalty Transition','2025 CS CX Transition')
+    AND start_dt= "2025-04-06"
+        ),
+
+master_table_pa_grp as 
+
+(SELECT master_table.*, emp_pa_grp_tbl.PA_GRP_NM as pa_grp_nm FROM master_table INNER JOIN emp_pa_grp_tbl on master_table.emp_eid=emp_pa_grp_tbl.emp_eid),
+
+
+
+call_count_table as 
+(
+SELECT 
+  emp_eid,
+  --COUNT(DISTINCT(ivrcallid)) AS call_id_count_at_emp_eid_level,
+  COUNT(DISTINCT(contact_id)) AS contact_id_count_at_emp_eid_level
+FROM
+  master_table_pa_grp
+GROUP BY
+  emp_eid
+HAVING
+  --call_id_count_at_emp_eid_level >= 30 and
+  contact_id_count_at_emp_eid_level >= 30),
+
+
+merged_master_table as 
+(
+SELECT master_table_pa_grp.*, call_count_table.contact_id_count_at_emp_eid_level FROM master_table_pa_grp INNER JOIN call_count_table on master_table_pa_grp.emp_eid=call_count_table.emp_eid)
+
+   SELECT call_metrics_data.* FROM 
+                    (
+                    SELECT *, 
+                    CASE 
+                    WHEN call_example_per_10 = 1 AND call_example_per_90 =1 THEN '10_90_per_same_call_id'
+                    WHEN call_example_per_10 = 1 THEN '10_per_call_id'
+                    WHEN call_example_per_90 = 1 THEN '90_per_call_id'
+                    ELSE 'ERROR'
+                    END AS call_type_flag
+                    FROM
+                    (
+                    SELECT * except(call_example_per_10_nonbin,call_example_per_90_nonbin,call_example_per_10_bin,call_example_per_90_bin),
+                    coalesce(call_example_per_10_nonbin, call_example_per_10_bin) as call_example_per_10,
+                    coalesce(call_example_per_90_nonbin, call_example_per_90_bin) as call_example_per_90
+                    FROM
+                    (
+                    SELECT *, 
+                    CASE WHEN binary_flag!='binary' THEN row_number() OVER(PARTITION BY emp_eid, kpi ORDER BY ABS(kpi_wk_per_10_post_removal-kpi_value) ASC) ELSE NULL END AS call_example_per_10_nonbin, 
+                    CASE WHEN binary_flag!='binary' THEN row_number() OVER(PARTITION BY emp_eid, kpi ORDER BY ABS(kpi_wk_per_90_post_removal-kpi_value) ASC) ELSE NULL END AS call_example_per_90_nonbin,
+                    CASE WHEN binary_flag='binary' THEN row_number() OVER(PARTITION BY emp_eid, kpi ORDER BY kpi_value ASC) ELSE NULL END AS call_example_per_10_bin, 
+                    CASE WHEN binary_flag='binary' THEN row_number() OVER(PARTITION BY emp_eid, kpi ORDER BY kpi_value desc) ELSE NULL END AS call_example_per_90_bin,
+                    COUNT(emp_eid) OVER(PARTITION BY emp_eid, kpi) AS total_kpi_calls_after_5_95_per_ceiling
+                    FROM
+                    (
+                    SELECT *,
+                    case when binary_flag!='binary' then PERCENTILE_CONT(kpi_value, 0.10) OVER(PARTITION BY emp_eid, kpi) else 0 end AS kpi_wk_per_10_post_removal,
+                    case when binary_flag!='binary' then PERCENTILE_CONT(kpi_value, 0.50) OVER(PARTITION BY emp_eid, kpi) else 1 end AS kpi_wk_per_50_post_removal,
+                    case when binary_flag!='binary' then PERCENTILE_CONT(kpi_value, 0.90) OVER(PARTITION BY emp_eid, kpi) else 1 end AS  kpi_wk_per_90_post_removal,
+                    FROM (
+                    SELECT * FROM
+                    (
+                    SELECT
+                    *,
+                    case when binary_flag!='binary' then PERCENTILE_CONT(kpi_value, 0.05) OVER(PARTITION BY emp_eid, kpi) else 0 end AS kpi_wk_per_05,
+                    case when binary_flag!='binary' then PERCENTILE_CONT(kpi_value, 0.95) OVER(PARTITION BY emp_eid, kpi) else 1 end  AS kpi_wk_per_95,
+                    FROM 
+                    merged_master_table
+                    )
+                    where kpi_value between kpi_wk_per_05 and kpi_wk_per_95
+                    )
+                    )
+                    )
+                    )
+                    WHERE call_example_per_10 = 1 OR call_example_per_90 = 1
+                    ORDER BY emp_eid, kpi, call_type_flag, call_dt) call_metrics_data
