@@ -75,3 +75,44 @@ plt.xticks(rotation=45)
 plt.grid(axis='y', linestyle='--', alpha=0.7)
 plt.tight_layout()
 plt.show()
+###########
+
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+
+# Your DataFrame and column
+# df = pd.DataFrame({'your_column': np.random.rand(100)})
+column = 'your_column'
+
+# Step 1: Calculate decile cut points (quantiles)
+quantiles = df[column].quantile(np.linspace(0, 1, 11)).drop_duplicates()
+
+# Step 2: Create labels (1 fewer than number of bins)
+labels = [f'{int(i*100)}-{int(j*100)}%' for i, j in zip(quantiles.index[:-1], quantiles.index[1:])]
+
+# Optional: Also keep actual value ranges to annotate
+range_labels = [f'{round(i, 2)}–{round(j, 2)}' for i, j in zip(quantiles.values[:-1], quantiles.values[1:])]
+
+# Step 3: Cut and count
+binned = pd.cut(df[column], bins=quantiles.values, labels=labels, include_lowest=True)
+value_counts = binned.value_counts().sort_index()
+
+# Step 4: Plot
+fig, ax = plt.subplots(figsize=(10, 5))
+bars = ax.bar(value_counts.index, value_counts.values, color='teal', edgecolor='black')
+
+# Step 5: Annotate each bar with quantile value range
+for bar, label in zip(bars, range_labels):
+    height = bar.get_height()
+    ax.text(bar.get_x() + bar.get_width()/2, height + 1, label,
+            ha='center', va='bottom', fontsize=9, rotation=0, color='black')
+
+# Style the plot
+ax.set_title(f'Value Count by Percentile Bins for "{column}"')
+ax.set_xlabel('Percentile Range')
+ax.set_ylabel('Count')
+plt.xticks(rotation=45)
+ax.grid(axis='y', linestyle='--', alpha=0.7)
+plt.tight_layout()
+plt.show()
