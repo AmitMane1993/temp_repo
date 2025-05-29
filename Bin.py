@@ -47,27 +47,26 @@ import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 
-# Example: Replace with your actual DataFrame and column name
+# Your DataFrame and column name
 # df = pd.DataFrame({'your_column': np.random.rand(100)})
 column = 'your_column'
 
-# Calculate 10-percentile bins (deciles)
-quantile_bins = np.linspace(0, 1, 11)
-quantile_labels = [f'{int(q*100)}-{int((q+0.1)*100)}%' for q in quantile_bins[:-1]]
+# Step 1: Calculate decile cut points (quantiles)
+quantiles = df[column].quantile(np.linspace(0, 1, 11)).drop_duplicates()
 
-# Create decile cut points using quantiles of the actual data
-cut_points = df[column].quantile(quantile_bins).values
+# Step 2: Create labels (1 fewer than number of unique bins)
+labels = [f'{int(i*100)}-{int(j*100)}%' for i, j in zip(quantiles.index[:-1], quantiles.index[1:])]
 
-# Bin the data using those quantiles
-binned = pd.cut(df[column], bins=cut_points, labels=quantile_labels, include_lowest=True, duplicates='drop')
+# Step 3: Cut the data into bins
+binned = pd.cut(df[column], bins=quantiles.values, labels=labels, include_lowest=True)
 
-# Count values in each bin
+# Step 4: Count the values in each bin
 value_counts = binned.value_counts().sort_index()
 
 # Display counts
 print(value_counts)
 
-# Plot
+# Step 5: Plot
 value_counts.plot(kind='bar', color='teal', edgecolor='black')
 plt.title(f'Value Count by Percentile Bins for "{column}"')
 plt.xlabel('Percentile Range')
