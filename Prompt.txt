@@ -1,0 +1,13 @@
+prompt
+I have 7 features in pandas dataframe as follows with values ranges, null percentages and zero value percentage for each feature
+
+total_phn_adds_gross : -1 to 35 (with 84%nulls and 2% 0 values)
+fwa_adds_gross : -5 to 5 (with 84% nulls and 8% null values)
+mobile_to_fios_refferals_cnt : 1 to 7 (with 91% nulls and no zero values)
+price_plan_step_up_cnt : 0 to 115 ( no nulls and 6% 0 values)
+connected_device_adds_gross : -1 to 15 (no null and 88 % 0 values)
+total_upgrades_gross : 19 to 37 (84% nulls and 0% zero values)
+total_perks_adds : 0 to 85 (no nulls and 84% zero values)
+
+Here null indicates agent didn't got opportunity it self to sell product and 0 indicates they got opportunity but could not convert, so null represent some significant value here. I want to create one single feature out of this 7 feature without imputing any null. How can I achieve this? Help me python code if possible
+
