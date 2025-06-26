@@ -1,0 +1,188 @@
+Below are five commonly-used approaches for rolling several KPI columns into a single composite metric.
+All snippets assume you already have a pandas.DataFrame called df that looks like the screenshot and a weight dictionary called weights:
+
+weights = {
+    "total_phn_adds_gross":        300,
+    "fwa_adds_gross":              100,
+    "mobile_to_fios_referrals_cnt":100,
+    "price_plan_step_up_cnt":       75,
+    "connected_device_adds_gross":  75,
+    "total_upgrades_gross":         50,
+    "total_perk_adds":              25,
+}
+
+Because the NaNs mean “no opportunity” (not missing data), each method either fills them with 0 or skips their weight when scoring. Pick whichever interpretation makes most sense in your business context.
+
+
+---
+
+1 · Straight weighted sum (treat NaN = 0)
+
+df_filled = df.fillna(0)
+
+total_wt = sum(weights.values())
+df["score_raw_sum"] = (
+    sum(df_filled[col] * wt for col, wt in weights.items()) / total_wt
+)
+
+Pros: simple, intuitive.
+Cons: agents without an opportunity still get “penalised” (they contribute 0, which drags their average down).
+
+
+---
+
+2 · Weighted sum with dynamic denominator (ignore missing opportunities)
+
+def dynamic_weighted_sum(row):
+    partial_sum, partial_wt = 0.0, 0.0
+    for col, wt in weights.items():
+        if pd.notna(row[col]):          # had an opportunity
+            partial_sum += row[col] * wt
+            partial_wt += wt
+    return partial_sum / partial_wt if partial_wt else np.nan
+
+df["score_dyn_sum"] = df.apply(dynamic_weighted_sum, axis=1)
+
+Pros: fair when opportunities vary strongly across agents.
+Cons: can’t distinguish “performed poorly” from “had zero opportunity” (both NaN after divide-by-zero guard).
+
+
+---
+
+3 · Min-max normalised, then weighted
+
+df_norm = df.copy().fillna(0)           # or ignore NaN as in #2
+
+for col in weights:
+    col_min, col_max = df_norm[col].min(), df_norm[col].max()
+    rng = (col_max - col_min) or 1      # avoid /0
+    df_norm[col] = (df_norm[col] - col_min) / rng
+
+total_wt = sum(weights.values())
+df["score_minmax"] = (
+    sum(df_norm[col] * wt for col, wt in weights.items()) / total_wt
+)
+
+Pros: each KPI contributes on a 0-1 scale; prevents “big-number” columns from dominating.
+Cons: extreme outliers stretch the scale; min–max must be re-computed if you add data.
+
+
+---
+
+4 · Z-score standardised, then weighted (good for normally-distributed KPIs)
+
+from scipy.stats import zscore
+
+df_z = df.apply(lambda s: zscore(s.fillna(0)), axis=0)  # column-wise z
+total_wt = sum(weights.values())
+df["score_z"] = (
+    sum(df_z[col] * wt for col, wt in weights.items()) / total_wt
+)
+
+Pros: comparability across columns with very different spreads.
+Cons: less interpretable; assumes roughly bell-shaped distributions.
+
+
+---
+
+5 · Geometric-mean style (multiplicative, emphasises balance)
+
+import numpy as np
+
+df_filled = df.fillna(0).copy()
+# Add 1 to make every term positive → G-mean works even when value == 0
+for col in weights:
+    df_filled[col] = df_filled[col] + 1
+
+log_weight = {k: v / sum(weights.values()) for k, v in weights.items()}
+
+df["score_geo"] = np.exp(
+    sum(np.log(df_filled[col]) * wt for col, wt in log_weight.items())
+)
+
+Pros: rewards agents that are solid on all KPIs; one very low KPI drags the score sharply down (great if balance matters).
+Cons: harder to explain; cannot handle negative numbers.
+
+
+---
+
+Packaging it into a reusable helper
+
+def composite_score(
+    df,
+    weights,
+    method="raw_sum",
+    treat_na="zero"   # or "ignore"
+):
+    if treat_na == "zero":
+        d = df.fillna(0).copy()
+    elif treat_na == "ignore":
+        d = df.copy()
+    else:
+        raise ValueError("treat_na must be 'zero' or 'ignore'")
+
+    total_wt = sum(weights.values())
+
+    if method == "raw_sum":
+        return (sum(d[c] * w for c, w in weights.items()) / total_wt)
+
+    if method == "dyn_sum":
+        out = []
+        for _, r in d.iterrows():
+            s, w = 0.0, 0.0
+            for c, wt in weights.items():
+                if pd.notna(r[c]):
+                    s += r[c] * wt
+                    w += wt
+            out.append(s / w if w else np.nan)
+        return pd.Series(out, index=d.index)
+
+    if method == "minmax":
+        d_norm = d.copy()
+        for c in weights:
+            mn, mx = d_norm[c].min(), d_norm[c].max()
+            d_norm[c] = (d_norm[c] - mn) / (mx - mn or 1)
+        return (sum(d_norm[c] * w for c, w in weights.items()) / total_wt)
+
+    if method == "z":
+        d_z = d.apply(lambda s: zscore(s.fillna(0)), axis=0)
+        return (sum(d_z[c] * w for c, w in weights.items()) / total_wt)
+
+    if method == "geo":
+        d_geo = d.fillna(0) + 1
+        log_w = {k: v / total_wt for k, v in weights.items()}
+        return np.exp(sum(np.log(d_geo[c]) * w for c, w in log_w.items()))
+
+    raise ValueError("Unknown method")
+
+df["composite"] = composite_score(df, weights, method="dyn_sum", treat_na="ignore")
+
+
+---
+
+A quick sanity-check
+
+(df["composite"]
+ .describe()
+ .round(2))
+
+Ensures no wild outliers and the numbers “feel right” before you move on to modelling or ranking.
+
+
+---
+
+Next steps
+
+1. Decide which philosophy fits your incentive plan.
+Raw sums reward absolute volume; normalised sums reward performance relative to peers; geometric means reward balance.
+
+
+2. Validate with business SMEs: show a few agents’ underlying KPIs plus their composite score to verify it “passes the sniff-test”.
+
+
+3. Version-control the function so everyone uses the same calculation.
+
+
+
+Feel free to drop your exact DataFrame name / any extra rules (e.g., target caps, directional penalties) if you’d like the helper function tailored further!
+
