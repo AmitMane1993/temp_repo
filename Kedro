@@ -1,0 +1,35 @@
+import yaml
+from collections import Counter
+
+# Custom loader to keep track of duplicates
+class UniqueKeyLoader(yaml.SafeLoader):
+    pass
+
+def construct_mapping(loader, node, deep=False):
+    mapping = {}
+    keys = []
+    for key_node, value_node in node.value:
+        key = loader.construct_object(key_node, deep=deep)
+        if key in mapping:
+            keys.append(key)  # track duplicates
+        value = loader.construct_object(value_node, deep=deep)
+        mapping[key] = value
+    if keys:
+        print("Duplicate keys found:", keys)
+    return mapping
+
+UniqueKeyLoader.add_constructor(
+    yaml.resolver.BaseResolver.DEFAULT_MAPPING_TAG,
+    construct_mapping)
+
+# Example YAML with duplicate keys
+yaml_str = """
+a: 1
+b: 2
+a: 3
+c: 4
+b: 5
+"""
+
+data = yaml.load(yaml_str, Loader=UniqueKeyLoader)
+print("Final parsed data:", data)
